@@ -6,8 +6,15 @@ const Otp = require('../../Model/Otp');
 router.post('/generateOTP', async (req, res) => {
     try {
         console.log(req.body);
-        const timestamp = new Date().getTime() / 1000;
-        const otp = (timestamp % 999999).toFixed(); //000001
+        const timestamp = new Date().getTime();
+        var otp = String(
+            (
+                (req.body.phoneNumber + timestamp + Math.random()) %
+                1000000
+            ).toFixed()
+        ).padStart(6, '0'); //otp now made up of phoneNumber, timestamp and a random number to increase randomness
+        console.log(otp);
+
         const Data = {
             username: req.body.username,
             otp: otp,
@@ -16,7 +23,7 @@ router.post('/generateOTP', async (req, res) => {
 
         const findUser = await Otp.findOne({ username: req.body.username });
         if (findUser) {
-            await Otp.findOneAndUpdate(Data);
+            await Otp.findOneAndUpdate({ username: req.body.username }, Data);
         } else {
             var database = Otp(Data);
             await database.save();
@@ -31,13 +38,13 @@ router.post('/generateOTP', async (req, res) => {
 //verifyOTP
 router.get('/verifyOTP', async (req, res) => {
     try {
-        const timestamp = new Date().getTime() / 1000;
+        const timestamp = new Date().getTime();
         //{a ,b, c} = request.body
         const username2 = req.body.username;
         const findUser = await Otp.findOne({ username: req.body.username });
         if (!findUser) {
             res.status(404).send('Please login');
-        } else if (timestamp - findUser.timestamp > 600) {
+        } else if ((timestamp - findUser.timestamp) / 1000 > 600) {
             await Otp.deleteOne({ username: req.body.username });
             res.status(400).send('OTP expired');
         } else if (req.body.otp != findUser.otp) {

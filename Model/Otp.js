@@ -4,8 +4,11 @@ const otpSchema = mongoose.Schema({
     username: {
         type: String,
     },
-    otp: {
+    phoneNumber: {
         type: Number,
+    },
+    otp: {
+        type: String,
     },
     timestamp: {
         type: Date,
