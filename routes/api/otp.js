@@ -17,6 +17,7 @@ router.post('/generateOTP', async (req, res) => {
 
         const Data = {
             username: req.body.username,
+            phoneNumber: req.body.phoneNumber,
             otp: otp,
             timestamp: timestamp,
         };
