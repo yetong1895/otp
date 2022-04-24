@@ -2,18 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Otp = require('../../Model/Otp');
 
-//generateOTP
+// @route   POST api/otp/generateOTP
+// @desc    Generate an OTP base on user phone number, timestamp and a random number
+// @access  Public
 router.post('/generateOTP', async (req, res) => {
     try {
-        console.log(req.body);
         const timestamp = new Date().getTime();
         var otp = String(
             (
                 (req.body.phoneNumber + timestamp + Math.random()) %
                 1000000
             ).toFixed()
-        ).padStart(6, '0'); //otp now made up of phoneNumber, timestamp and a random number to increase randomness
-        console.log(otp);
+        ).padStart(6, '0'); //otp now made up of phoneNumber, timestamp and a random number to increase uniqueness
 
         const Data = {
             username: req.body.username,
@@ -35,12 +35,13 @@ router.post('/generateOTP', async (req, res) => {
     }
 });
 
-//verifyOTP
+// @route   GET api/otp/verifyOTP
+// @desc    Verify user OTP
+// @access  Public
 router.get('/verifyOTP', async (req, res) => {
     try {
         const timestamp = new Date().getTime();
         //{a ,b, c} = request.body
-        const username2 = req.body.username;
         const findUser = await Otp.findOne({ username: req.body.username });
         if (!findUser) {
             res.status(404).send('Please login');
